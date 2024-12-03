@@ -6,21 +6,24 @@ reports = open("inputs.txt").read().splitlines()
 c = 0
 for report in reports:
     report = [int(x) for x in report.split(" ")]
-    sign = None
-    for i in range(1, len(report)):
-        d = report[i] - report[i - 1]
-        if d == 0:
-            break
-        if not sign:
-            sign = "inc" if d > 0 else "dec"
-        else:
-            if sign == "inc" and d < 0:
-                break
-            if sign == "dec" and d > 0:
-                break
 
-        if abs(d) > 3:
+    sign = None
+    prev = None
+    badc = 0
+    for i in range(len(report)):
+        if i == 0:
+            prev = report[i]
+            continue
+
+        d = report[i] - prev
+
+        if not sign:
+            sign = 1 if d >= 0 else -1
+
+        if d * sign <= 0 or abs(d) > 3:
             break
+
+        prev = report[i]
 
         if i == len(report) - 1:
             c += 1
