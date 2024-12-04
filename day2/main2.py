@@ -31,13 +31,15 @@ def permute_reports(report):
 
 
 c = 0
-for report in reports:
-    report = [int(x) for x in report.split(" ")]
-    permted_reports = permute_reports(report)
-    for r in permted_reports:
-        if is_report_safe(r):
-            c += 1
-            break
+with open("inputs2.txt", "w") as f:
+    for sreport in reports:
+        report = [int(x) for x in sreport.split(" ")]
+        permted_reports = permute_reports(report)
+        for r in permted_reports:
+            if is_report_safe(r):
+                c += 1
+                f.write(report + "\n")
+                break
 
 print(c)
 assert c == 601

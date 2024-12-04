@@ -5,6 +5,8 @@ reports = open("inputs.txt").read().splitlines()
 
 
 def is_report_safe(report):
+    report = [int(x) for x in report.split(" ")]
+
     sign = None
     prev = None
     for i in range(len(report)):
@@ -28,18 +30,10 @@ def is_report_safe(report):
     return False
 
 
-def permute_reports(report):
-    return [report]
-
-
 c = 0
 for report in reports:
-    report = [int(x) for x in report.split(" ")]
-    permted_reports = permute_reports(report)
-    for r in permted_reports:
-        if is_report_safe(r):
-            c += 1
-            break
+    if is_report_safe(report):
+        c += 1
 
 print(c)
 assert c == 559
