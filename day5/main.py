@@ -54,16 +54,16 @@ def part2(filename):
     g, updates = build(filename)
     count = 0
 
-    def cmp(n1, n2):
+    def cmp(n2, n1):
         print(f"checking...{n1} -> {n2} ", end="")
         if n2 in g.edges[n1]:
-            print("found edge, reordering")
+            print("found edge, do nothing")
             # if there is an edge from n1 to n2, n2 should come before n1, reorder
-            return -1
+            return 0
 
-        print("no edge found, no reordering")
+        print(f"no edge found, {n2} comes before {n1}")
         # if there is no edge,
-        return 0
+        return -1
 
     for update in updates:
         if not g.check_path(update):
