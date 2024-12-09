@@ -83,24 +83,33 @@ class Disk:
                 self.blocks.insert(i, Block.empty(el.size))
                 return el
 
-    def insert(self, block):
+    def insert(self):
         """
         Find an empty block whose size is greater or equal to this block id and insert it
         """
+        block, ix = self.peek()
+        if not block:
+            raise Exception("No block to insert")
+
         for i, b in enumerate(self.blocks):
             if b.is_empty and b.size == block.size:
                 # replace the empty block with the new block
-                _ = self.blocks.pop(i)
-                self.blocks.insert(i, block)
-                return
+                def cb():
+                    self.blocks[ix] = Block.empty(block.size)
+                    self.blocks[i] = block
+
+                return True, cb
             elif b.is_empty and b.size > block.size:
                 # split the empty block into two
-                self.blocks.pop(i)
-                self.blocks.insert(i, Block.empty(b.size - block.size))
-                self.blocks.insert(i, block)
-                return
+                def cb():
+                    self.blocks[ix] = Block.empty(block.size)
+                    self.blocks[i] = block
+                    self.blocks.insert(i + 1, Block.empty(b.size - block.size))
+
+                return True, cb
             else:
                 continue
+        return False, None
 
     def checksum(self):
         return sum(b.id * i for i, b in enumerate(self.blocks) if not b.is_empty)
@@ -115,8 +124,9 @@ def solve1(fname, debug=False):
 
     print("compressing...")
     while not disk.is_compact():
-        last = disk.pop()
-        disk.insert(last)
+        can, cb = disk.insert()
+        if can and cb:
+            cb()
     print("finished")
 
     if debug:
@@ -130,5 +140,5 @@ if __name__ == "__main__":
     print("p1 test:", p1_test)
     assert p1_test == 1928
 
-    # p1 = solve1("input.txt")
-    # print("p1:", p1)
+    p1 = solve1("input.txt")
+    print("p1:", p1)
