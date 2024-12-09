@@ -1,4 +1,3 @@
-# define custom exception
 class LoopDetected(Exception):
     pass
 
@@ -34,8 +33,9 @@ def walk(map, obstacles, curr, direction):
         else:
             path.add((curr, direction))
 
+        visited.add(curr)
         x0, y0 = curr
-        visited.add((x0, y0))
+        x1, y1 = curr  # in case we hit an obstacle
 
         if direction == "n":
             if (x0 - 1, y0) not in obstacles:
@@ -87,9 +87,6 @@ def solve2(filename):
         except LoopDetected:
             pos.add(point)
 
-    if (130, 98) in pos:
-        raise ValueError("this point does not exist on map and should not be here")
-
     return len(pos)
 
 
@@ -97,8 +94,8 @@ if __name__ == "__main__":
     print("part 1:", solve1("input.txt"))
     print("(test) part 2:", solve2("test.txt"))
     part2 = solve2("input.txt")
-    # print("part 2:", part2)
+    print("part 2:", part2)
     assert solve1("input.txt") == 5162
-    # assert solve2("test.txt") == 6
-    # assert part2 == 1909
+    assert solve2("test.txt") == 6
+    assert part2 == 1909
     print("all tests pass.")
