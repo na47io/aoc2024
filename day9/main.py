@@ -55,7 +55,7 @@ def solve1(fname):
         i += block_size
         j -= block_size
 
-    assert s == "0099811188827773336446555566.............."
+    assert s == "0099811188827773336446555566................."
 
     return c
 
