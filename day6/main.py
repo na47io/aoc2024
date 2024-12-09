@@ -20,39 +20,75 @@ def build(filename: str):
     return map, obstacles, start
 
 
-def solve1():
-    map, obstacles, start = build("input.txt")
+def walk(map, obstacles, curr, direction):
     visited = set()
-    direction = "n"  # n, e, s, w
-
+    path = set()
     while True:
-        x, y = start
+        if (curr, direction) in path:
+            raise ValueError("Loop detected")
+        else:
+            path.add((curr, direction))
+
+        x, y = curr
+
         if direction == "n":
             if (x - 1, y) not in obstacles:
-                start = (x - 1, y)
+                curr = (x - 1, y)
             else:
                 direction = "e"
         elif direction == "e":
             if (x, y + 1) not in obstacles:
-                start = (x, y + 1)
+                curr = (x, y + 1)
             else:
                 direction = "s"
         elif direction == "s":
             if (x + 1, y) not in obstacles:
-                start = (x + 1, y)
+                curr = (x + 1, y)
             else:
                 direction = "w"
         elif direction == "w":
             if (x, y - 1) not in obstacles:
-                start = (x, y - 1)
+                curr = (x, y - 1)
             else:
                 direction = "n"
+
         if x >= len(map) or y >= len(map[0]) or x < 0 or y < 0:
             break
-        visited.add(start)
 
+        visited.add(curr)
+
+    return visited
+
+
+def solve1(filename):
+    map, obstacles, curr = build(filename)
+    visited = walk(map, obstacles, curr, "n")
     return len(visited)
 
 
+def solve2(filename):
+    map, obstacles, curr = build(filename)
+    visited = walk(map, obstacles, curr, "n")
+
+    pos = set()
+    for point in visited:
+        obs = obstacles.copy()
+        obs.add(point)
+
+        try:
+            _ = walk(map, obs, curr, "n")
+        except ValueError:
+            pos.add(point)
+
+    return len(pos)
+
+
 if __name__ == "__main__":
-    print(solve1())
+    print("part 1:", solve1("input.txt"))
+    print("(test) part 2:", solve2("test.txt"))
+    part2 = solve2("input.txt")
+    print("part 2:", part2)
+    assert solve1("input.txt") == 5162
+    assert solve2("test.txt") == 6
+    assert part2 == 1909
+    print("all tests pass.")
