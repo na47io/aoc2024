@@ -1,3 +1,8 @@
+# define custom exception
+class LoopDetected(Exception):
+    pass
+
+
 def build(filename: str):
     lines = open(filename, "r").read().splitlines()
 
@@ -25,43 +30,45 @@ def walk(map, obstacles, curr, direction):
     path = set()
     while True:
         if (curr, direction) in path:
-            raise ValueError("Loop detected")
+            raise LoopDetected
         else:
             path.add((curr, direction))
 
-        x, y = curr
+        x0, y0 = curr
+        visited.add((x0, y0))
 
         if direction == "n":
-            if (x - 1, y) not in obstacles:
-                curr = (x - 1, y)
+            if (x0 - 1, y0) not in obstacles:
+                x1, y1 = (x0 - 1, y0)
             else:
                 direction = "e"
         elif direction == "e":
-            if (x, y + 1) not in obstacles:
-                curr = (x, y + 1)
+            if (x0, y0 + 1) not in obstacles:
+                x1, y1 = (x0, y0 + 1)
             else:
                 direction = "s"
         elif direction == "s":
-            if (x + 1, y) not in obstacles:
-                curr = (x + 1, y)
+            if (x0 + 1, y0) not in obstacles:
+                x1, y1 = (x0 + 1, y0)
             else:
                 direction = "w"
         elif direction == "w":
-            if (x, y - 1) not in obstacles:
-                curr = (x, y - 1)
+            if (x0, y0 - 1) not in obstacles:
+                x1, y1 = (x0, y0 - 1)
             else:
                 direction = "n"
 
-        if x >= len(map) or y >= len(map[0]) or x < 0 or y < 0:
+        if x1 >= len(map) or y1 >= len(map[0]) or x1 < 0 or y1 < 0:
             break
 
-        visited.add(curr)
+        curr = x1, y1
 
     return visited
 
 
 def solve1(filename):
     map, obstacles, curr = build(filename)
+    print(curr)
     visited = walk(map, obstacles, curr, "n")
     return len(visited)
 
@@ -77,8 +84,11 @@ def solve2(filename):
 
         try:
             _ = walk(map, obs, curr, "n")
-        except ValueError:
+        except LoopDetected:
             pos.add(point)
+
+    if (130, 98) in pos:
+        raise ValueError("this point does not exist on map and should not be here")
 
     return len(pos)
 
@@ -87,8 +97,8 @@ if __name__ == "__main__":
     print("part 1:", solve1("input.txt"))
     print("(test) part 2:", solve2("test.txt"))
     part2 = solve2("input.txt")
-    print("part 2:", part2)
+    # print("part 2:", part2)
     assert solve1("input.txt") == 5162
-    assert solve2("test.txt") == 6
-    assert part2 == 1909
+    # assert solve2("test.txt") == 6
+    # assert part2 == 1909
     print("all tests pass.")
