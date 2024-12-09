@@ -4,52 +4,48 @@ def build(fname):
 
 
 def from_map(diskmap: str):
-    slots = []
-    i = 0
+    # Pre-calculate filled positions during initial setup
+    filled = []  # List of (position, id) pairs
+    empty = []  # Just positions
+
+    pos = 0
     id = 0
-    for c in diskmap:
-        if i % 2 == 0:  # File blocks
-            for _ in range(int(c)):
-                slots.append(id)
+    for i, c in enumerate(diskmap):
+        count = int(c)
+        if i % 2 == 0:
+            for _ in range(count):
+                filled.append((pos, id))
+                pos += 1
             id += 1
-        else:  # Empty blocks
-            slots.extend([None] * int(c))
-        i += 1
-    return slots
+        else:
+            for _ in range(count):
+                empty.append(pos)
+                pos += 1
+
+    filled.sort(reverse=True)  # Sort by position descending
+    return filled, empty, pos  # pos is total length
 
 
 def solve1(fname):
     diskmap = build(fname)
-    slots = from_map(diskmap)
+    filled, empty, total_len = from_map(diskmap)
 
-    # Keep going until we can't find any moves to make
-    while True:
-        # Find rightmost filled slot
-        right_pos = -1
-        for i in range(len(slots) - 1, -1, -1):
-            if slots[i] is not None:
-                right_pos = i
-                break
-        if right_pos == -1:
-            break
+    # Initialize result array
+    result = [None] * total_len
+    for pos, id in filled:
+        result[pos] = id
 
-        # Find leftmost empty slot before right_pos
-        left_pos = -1
-        for i in range(right_pos):
-            if slots[i] is None:
-                left_pos = i
-                break
+    empty_idx = 0  # Index into empty list
+    # Process each filled position from right to left
+    for _, (pos, id) in enumerate(filled):
+        # If there's an empty spot to the left and we're not at leftmost
+        if empty_idx < len(empty) and empty[empty_idx] < pos:
+            # Move to empty spot
+            result[empty[empty_idx]] = id
+            result[pos] = None
+            empty_idx += 1
 
-        # If no empty slots found, we're done
-        if left_pos == -1:
-            break
-
-        # Move the value left
-        slots[left_pos] = slots[right_pos]
-        slots[right_pos] = None
-
-    # Calculate checksum
-    return sum(i * id for i, id in enumerate(slots) if id is not None)
+    return sum(i * id for i, id in enumerate(result) if id is not None)
 
 
 if __name__ == "__main__":
