@@ -23,34 +23,29 @@ def solve1(fname):
 
         # base case
         if (
-            x < 0
-            or x >= len(map)
-            or y < 0
-            or y >= len(map[0])
-            or (curr := map[x][y]) is None
+            (x < 0 or x >= len(map) or y < 0 or y >= len(map[0]))
             or d > 9
-            or (prev and curr <= prev)
-            or (prev and curr and prev + 1 != curr)
+            or (curr := map[x][y]) is None
+            or (prev is not None and curr and prev + 1 != curr)
         ):
-            return []
+            return set()
 
         if curr == 9 and d == 9:
             # found trail end, return coords
-            return [(x, y)]
+            return {(x, y)}
 
         return (
             _solve(x + 1, y, curr, d + 1)
-            + _solve(x - 1, y, curr, d + 1)
-            + _solve(x, y + 1, curr, d + 1)
-            + _solve(x, y - 1, curr, d + 1)
+            | _solve(x - 1, y, curr, d + 1)
+            | _solve(x, y + 1, curr, d + 1)
+            | _solve(x, y - 1, curr, d + 1)
         )
 
     c = 0
     for i in range(len(map)):
         for j in range(len(map[0])):
             if map[i][j] == 0:
-                res = set(_solve(i, j, None, 0))
-                print(res)
+                res = _solve(i, j, None, 0)
                 c += len(res)
 
     return c
