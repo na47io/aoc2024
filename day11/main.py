@@ -7,6 +7,16 @@ def build(fname):
     return out
 
 
+def get_num_digits(n):
+    return len(str(n))
+
+
+def split_number(n, digits):
+    strstone = str(n)
+    ll = len(str(n)) // 2
+    return [int(strstone[:ll]), int(strstone[ll:])]
+
+
 def solve1(fname, blinks):
     stones = build(fname)
     c = 0
@@ -16,11 +26,11 @@ def solve1(fname, blinks):
         for s in stones:
             if s == 0:
                 new_stones.append(1)
-            elif len(strstone := str(s)) % 2 == 0:
-                ll = len(strstone) // 2
-                new_stones.extend([int(strstone[:ll]), int(strstone[ll:])])
             else:
-                new_stones.append(s * 2024)
+                if (digits := get_num_digits(s)) % 2 == 0:
+                    new_stones.extend(split_number(s, digits))
+                else:
+                    new_stones.append(s * 2024)
 
         stones = new_stones
         c += 1
@@ -40,5 +50,5 @@ if __name__ == "__main__":
     p1 = solve1("input.txt", 25)
     print(p1)
 
-    p2 = solve1("input.txt", 75)
-    print(p2)
+    # p2 = solve1("input.txt", 75)
+    # print(p2)
