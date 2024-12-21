@@ -18,30 +18,24 @@ def solve1(fname):
     @functools.cache
     def _solve(x, y, prev, d):
         """
-        How many trails reach this cell.
+        If you can walk to a 9 in 9 incrasing moves, return the coordinates
         """
 
-        if x < 0 or x >= len(map) or y < 0 or y >= len(map[0]):
-            # out of bounds
-            return []
-
-        curr = map[x][y]
-
-        if curr is None:
-            return []
-
-        if d > 9:
-            return []
-
-        if prev and curr <= prev:
-            return []
-
-        if prev and curr and prev + 1 != curr:
-            # not increasing by one
+        # base case
+        if (
+            x < 0
+            or x >= len(map)
+            or y < 0
+            or y >= len(map[0])
+            or (curr := map[x][y]) is None
+            or d > 9
+            or (prev and curr <= prev)
+            or (prev and curr and prev + 1 != curr)
+        ):
             return []
 
         if curr == 9 and d == 9:
-            # found trail start - return 1
+            # found trail end, return coords
             return [(x, y)]
 
         return (
@@ -55,7 +49,9 @@ def solve1(fname):
     for i in range(len(map)):
         for j in range(len(map[0])):
             if map[i][j] == 0:
-                c += len(set(_solve(i, j, None, 0)))
+                res = set(_solve(i, j, None, 0))
+                print(res)
+                c += len(res)
 
     return c
 
@@ -65,5 +61,6 @@ if __name__ == "__main__":
     print("t1 answer", t1)
     assert t1 == 36
 
+    # 842 is TOO HIGH
     p1 = solve1("input.txt")
     print("p1 answer", p1)
