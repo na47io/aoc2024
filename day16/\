@@ -1,0 +1,15 @@
+def build(fname):
+    map = []
+    start = (-1, -1)
+    lines = open(fname).readlines()
+    for i, line in enumerate(lines):
+        row = []
+        for j, c in enumerate(line.strip()):
+            if c == "S":
+                start = (i, j)
+            row.append(c)
+        map.append(row)
+
+    print(map)
+
+    return map
