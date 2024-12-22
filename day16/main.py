@@ -81,6 +81,73 @@ def solve1(fname):
     return sys.maxsize
 
 
+def solve2(fname):
+    map, start = build(fname)
+    xs, ys = start
+
+    # Track costs to reach each state
+    best_costs = {}  # (x, y, dir) -> cost
+    best_cost_to_end = sys.maxsize
+    all_optimal_tiles = set()
+
+    queue = [(0, xs, ys, "e", [(xs, ys)])]
+
+    while queue:
+        cost, x, y, dir, path = heappop(queue)
+
+        # If cost exceeds best path found, skip
+        if cost > best_cost_to_end:
+            continue
+
+        if x < 0 or x >= len(map) or y < 0 or y >= len(map[0]) or map[x][y] == "#":
+            continue
+
+        if map[x][y] == "E":
+            if cost <= best_cost_to_end:
+                if cost < best_cost_to_end:
+                    best_cost_to_end = cost
+                    all_optimal_tiles.clear()
+                all_optimal_tiles.update(path)
+            continue
+
+        state = (x, y, dir)
+        # keep walking if the cost at this state is no more than the best path's cost
+        if state in best_costs and cost > best_costs[state]:
+            continue
+        best_costs[state] = cost
+
+        # Go straight
+        next_pos = None
+        if dir == "e":
+            next_pos = (x, y + 1)
+        elif dir == "w":
+            next_pos = (x, y - 1)
+        elif dir == "n":
+            next_pos = (x - 1, y)
+        elif dir == "s":
+            next_pos = (x + 1, y)
+        if next_pos:
+            heappush(
+                queue, (cost + 1, next_pos[0], next_pos[1], dir, path + [next_pos])
+            )
+
+        # Turn left/right
+        heappush(queue, (cost + 1000, x, y, next_dir(dir, "L"), path))
+        heappush(queue, (cost + 1000, x, y, next_dir(dir, "R"), path))
+
+    for i in range(len(map)):
+        print(
+            "".join(
+                [
+                    "O" if (i, j) in all_optimal_tiles else map[i][j]
+                    for j in range(len(map[0]))
+                ]
+            )
+        )
+
+    return len(all_optimal_tiles)
+
+
 if __name__ == "__main__":
     t1 = solve1("test.txt")
     print(t1)
@@ -88,3 +155,10 @@ if __name__ == "__main__":
 
     p1 = solve1("input.txt")
     print(p1)
+
+    t2 = solve2("test.txt")
+    print(t2)
+    assert t2 == 45
+
+    p2 = solve2("input.txt")
+    print(p2)
