@@ -1,10 +1,9 @@
 [project]
-name = "aoc2024"
+name = "day14"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
-
-[tool.uv.workspace]
-members = ["day9", "day14"]
+dependencies = [
+    "pygame>=2.6.1",
+]
