@@ -15,15 +15,18 @@ class Computer:
     c: int
 
     program: list[int]
+    n: int
 
     def __init__(self, program: list[int]):
         self.program = program
+        self.n = len(program)
 
     def init(self, a, b, c):
         self.a = a
         self.b = b
         self.c = c
         self.out = []
+        self.nout = 0
         self.ip = 0
 
     def step(self, ip, debug=False):
@@ -39,40 +42,35 @@ class Computer:
         if debug:
             print(f"{opcode=}, {operand=} {self.a=} {self.b=} {self.c=} {self.ip=}")
         if opcode == 0:
-            self.a = self.a // 2 ** self._load_operand(operand)
+            self.a = self.a >> self._load_operand(operand)
         elif opcode == 1:
-            self.b = xor(self.b, self._load_literal_operand(operand))
+            self.b = xor(self.b, operand)
         elif opcode == 2:
-            self.b = self._load_operand(operand) % 8
+            self.b = self._load_operand(operand) & 7
         elif opcode == 3:
             if self.a != 0:
-                return self._load_literal_operand(operand)
+                return operand
         elif opcode == 4:
             self.b = xor(self.b, self.c)
         elif opcode == 5:
-            x = self._load_operand(operand) % 8
+            x = self._load_operand(operand) & 7
             self.out.append(x)
+            self.nout += 1
         elif opcode == 6:
-            self.b = self.a // 2 ** self._load_operand(operand)
+            self.b = self.a >> self._load_operand(operand)
         elif opcode == 7:
-            self.c = self.a // 2 ** self._load_operand(operand)
+            self.c = self.a >> self._load_operand(operand)
         else:
             raise ValueError(f"Invalid opcode {opcode}")
 
         nxt = self.ip + 2
-        if nxt < len(self.program):
+        if nxt < self.n:
             return nxt
 
         return -1
 
     def output(self):
         return ",".join(map(str, self.out))
-
-    def _load_literal_operand(self, operand):
-        if operand <= 7:
-            return operand
-        else:
-            raise ValueError(f"Not a literal operand {operand}")
 
     def _load_operand(self, operand):
         if operand <= 3:
@@ -119,7 +117,6 @@ def solve2(fname):
     Brute force by trying hella numbers...
     """
     computer, _, b, c = build(fname)
-    needle = ",".join(map(str, computer.program))
 
     for a in range(2**64):
         computer.init(a, b, c)
@@ -127,16 +124,15 @@ def solve2(fname):
 
         while True:
             ip = computer.step(ip)
-            output = computer.output()
 
-            if not needle.startswith(output):
+            if any(x != y for x, y in zip(computer.program, computer.out)):
                 break
-
-            if needle == output:
-                return a
 
             if ip == -1:
                 break
+
+            if computer.nout == computer.n:
+                return a
 
     return -1
 
@@ -154,5 +150,5 @@ if __name__ == "__main__":
     print(t2)
     assert t2 == 117440
 
-    # p2 = solve2("input.txt")
-    # print(p2)
+    p2 = solve2("input.txt")
+    print(p2)
